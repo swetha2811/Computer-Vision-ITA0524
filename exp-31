@@ -1,0 +1,22 @@
+import cv2
+import numpy as np
+def subtract_background(image_path, lower_color, upper_color):
+   
+    image = cv2.imread(image_path)
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv_image, lower_color, upper_color)
+    mask_inv = cv2.bitwise_not(mask)
+    result = cv2.bitwise_and(image, image, mask=mask_inv)
+    return result
+if __name__ == "__main__":
+    # Define color range for background subtraction (in HSV format)
+    # Adjust these values based on your specific image and background color
+    lower_bound = np.array([0, 0, 0])     # Lower threshold (e.g., black)
+    upper_bound = np.array([180, 255, 255])  # Upper threshold (e.g., white)
+   
+    image_path = 'input_image.jpg'
+    output_image = subtract_background(image_path, lower_bound, upper_bound)
+    cv2.imshow('Background Subtracted Image', output_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.imwrite('output_image.jpg', output_image)
