@@ -1,0 +1,28 @@
+import tensorflow as tf
+import numpy as np
+from PIL import Image
+# Load the pre-trained detection model
+model_path = 'path/to/your/saved_model'
+detect_fn = tf.saved_model.load(model_path)
+# Load and preprocess the image
+def load_image_into_numpy_array(path):
+    return np.array(Image.open(path))
+image_path = 'path/to/your/image.jpg'
+image_np = load_image_into_numpy_array(image_path)
+# Convert image into the format required by the model (usually a batch of images)
+input_tensor = tf.convert_to_tensor(image_np)
+input_tensor = input_tensor[tf.newaxis,...]  # Add batch dimension
+# Run detection
+detections = detect_fn(input_tensor)
+# Process the detections (e.g., bounding boxes, classes, scores)
+num_detections = int(detections.pop('num_detections'))
+detections = {key: value[0, :num_detections].numpy() for key, value in detections.items()}
+detections['num_detections'] = num_detections
+# Detection classes, boxes, and scores
+detection_classes = detections['detection_classes']
+detection_boxes = detections['detection_boxes']
+detection_scores = detections['detection_scores']
+# Print the detections
+print("Detection Classes: ", detection_classes)
+print("Detection Boxes: ", detection_boxes)
+print("Detection Scores: ", detection_scores)
